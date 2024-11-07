@@ -2,3 +2,4 @@ myenv/
 idsBackend/idsBackend/__pycache__
 idsBackend/idsApp/__pycache__
 idsBackend/idsApp/migrations/__pycache__
+data

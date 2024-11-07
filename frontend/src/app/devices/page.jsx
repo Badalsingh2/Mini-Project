@@ -1,10 +1,12 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { useRouter } from 'next/navigation' // Import useRouter
 import Button from '../../components/Button'
 import { Lightbulb, Thermometer, Lock, Tv, Speaker, RefreshCw } from 'lucide-react'
 
 export default function IoTDeviceDiscoveryPage() {
+  const router = useRouter()
   const [devices, setDevices] = useState([])
   const [isRefreshing, setIsRefreshing] = useState(false)
 
@@ -41,7 +43,10 @@ export default function IoTDeviceDiscoveryPage() {
           Refresh
         </Button>
       </div>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+      <div
+        className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"
+        onClick={() => router.push('/upload')} // Add onClick event here
+      >
         {devices.map((device) => (
           <div key={device.id} className="bg-white p-6 rounded-lg shadow hover:shadow-md transition-shadow">
             <device.icon className="text-[#1877f2] w-12 h-12 mb-4" />
