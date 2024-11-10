@@ -40,7 +40,7 @@ def upload_file(request):
             
         except Exception as e:
             return HttpResponse({"error": f"Error reading Excel file: {e}"}, status=status.HTTP_400_BAD_REQUEST)
-
+        print("started")
         # Preprocess the data in df as needed, e.g., extract specific columns, rows, etc.
         first_rows = preprocess_data(df)  # Ensure preprocess_data is defined elsewhere
         
@@ -60,27 +60,44 @@ def upload_file(request):
         try:
             predictions = model1.predict(first_rows)
             real_predict = model2.inverse_transform(predictions)
+            print(real_predict)
             df['prediction'] = real_predict
+            count = df['prediction'].value_counts()
         except Exception as e:
             return Response({"error": f"Error during prediction: {e}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
+        print(count)
         # Convert DataFrame to HTML
         result_html = df.to_html()
+        df1 = pd.DataFrame(count)
+        df2 = df1.to_html()
         # Return HTML preview of processed data
-        return HttpResponse(result_html, status=status.HTTP_200_OK)
+        return HttpResponse(df2, status=status.HTTP_200_OK)
     else:
         return HttpResponse({"error": "No file uploaded."}, status=status.HTTP_400_BAD_REQUEST)
 
-
+@api_view(['POST'])
 def label_predictor(request):
-    if request.method == 'POST' and request.FILES['excel_file']:
-        excel_file = request.FILES['excel_file']
+    file = request.FILES.get('excel_file')
+    if file:
+        file_name = file.name
+        data_directory = 'data/'
+
+        data_directory_path = os.path.join(settings.MEDIA_ROOT, data_directory)
+        os.makedirs(data_directory_path, exist_ok=True)
+        # Save the file temporarily
+        # Save the file with the specified directory path
+        file_name_with_path = os.path.join(data_directory, file_name)
+        file_path = default_storage.save(file_name_with_path, file)
+
+        # Get the full path to the file
+        file_path = default_storage.path(file_name_with_path)
 
         # Read the Excel file
         try:
-            df = pd.read_excel(excel_file)
+            df = pd.read_excel(file_path)
+            
         except Exception as e:
-            return HttpResponse(f"Error reading Excel file: {e}", status=400)
+            return HttpResponse({"error": f"Error reading Excel file: {e}"}, status=status.HTTP_400_BAD_REQUEST)
 
         # Process the data in df as needed, e.g., extract specific columns, rows, etc.
         # Example: display the first few rows
@@ -88,12 +105,15 @@ def label_predictor(request):
         model2 = joblib.load(os.path.join(model_dir,'labelmodel.joblib'))
 
         data = label_processing(df)
+        print(data)
         predictions = model2.predict(data)
         unique_values, counts = np.unique(predictions, return_counts=True)
-
-# Combine unique values and counts into a dictionary for easy interpretation
+        
+        # Combine unique values and counts into a dictionary for easy interpretation
         value_counts = dict(zip(unique_values, counts))
-
-        return HttpResponse(f"<h2>Data preview:</h2>{value_counts}")
+        value_counts = {int(key): int(value) for key, value in value_counts.items()}
+        print(value_counts)
+        # Return the value counts as JSON
+        return Response(value_counts, status=status.HTTP_200_OK)
     else:
-        return render(request, 'uploadlabel.html')
+        return Response({"error": "No file provided."}, status=status.HTTP_400_BAD_REQUEST)

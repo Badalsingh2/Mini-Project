@@ -1,9 +1,10 @@
-'use client'
+'use client';
 import React, { useState, useRef, useEffect } from "react";
 
+// Add styles using inline styles or external CSS
 const LoadExcel = () => {
   const [file, setFile] = useState(null);
-  const [htmlContent, setHtmlContent] = useState(""); // Add state to store HTML content
+  const [htmlContent, setHtmlContent] = useState(""); // State to store HTML content
   const htmlRef = useRef(null);
 
   // Handle file selection
@@ -30,7 +31,7 @@ const LoadExcel = () => {
         method: "POST",
         body: formData,
       });
-      
+
       if (!response.ok) {
         alert("Failed to upload file.");
         return;
@@ -67,24 +68,31 @@ const LoadExcel = () => {
   }, [htmlContent]);
 
   return (
-    <div>
-      <h2>Upload Excel File</h2>
-      <form onSubmit={handleSubmit}>
+    <div className="h-screen bg-black text-green-400 font-mono flex flex-col items-center justify-center">
+      <h2 className="text-4xl font-bold mb-6 animate-pulse">Upload Excel File</h2>
+      <form onSubmit={handleSubmit} className="space-y-6">
         <input
           type="file"
           name="excel_file"
           accept=".xlsx, .xls"
           onChange={handleFileChange}
+          className="bg-black border-2 border-green-400 px-4 py-2 text-green-400 rounded-md shadow-lg hover:bg-green-700 transition duration-200 ease-in-out"
         />
-        <button type="submit">Upload</button>
+        <button 
+          type="submit" 
+          className="bg-black border-2 border-green-400 px-6 py-3 text-green-400 rounded-md hover:bg-green-700 transition duration-200 ease-in-out glitch"
+        >
+          Upload
+        </button>
       </form>
 
       {/* Render the HTML content received from the backend */}
       {htmlContent && (
-          <div
-            ref={htmlRef}
-            dangerouslySetInnerHTML={{ __html: htmlContent }}
-          />
+        <div
+          ref={htmlRef}
+          dangerouslySetInnerHTML={{ __html: htmlContent }}
+          className="mt-6 bg-black p-6 border-2 border-green-400 rounded-md shadow-xl"
+        />
       )}
     </div>
   );

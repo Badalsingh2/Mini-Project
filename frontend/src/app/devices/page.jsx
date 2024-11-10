@@ -45,7 +45,7 @@ export default function IoTDeviceDiscoveryPage() {
       </div>
       <div
         className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"
-        onClick={() => router.push('/upload')} // Add onClick event here
+        onClick={() => router.push('/attacks')} // Add onClick event here
       >
         {devices.map((device) => (
           <div key={device.id} className="bg-white p-6 rounded-lg shadow hover:shadow-md transition-shadow">
