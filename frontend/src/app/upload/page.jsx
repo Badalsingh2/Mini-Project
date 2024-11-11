@@ -1,18 +1,16 @@
 'use client';
+import MatrixRainWrapper from "@/components/MatrixRain";
 import React, { useState, useRef, useEffect } from "react";
 
-// Add styles using inline styles or external CSS
 const LoadExcel = () => {
   const [file, setFile] = useState(null);
-  const [htmlContent, setHtmlContent] = useState(""); // State to store HTML content
+  const [htmlContent, setHtmlContent] = useState("");
   const htmlRef = useRef(null);
 
-  // Handle file selection
   const handleFileChange = (event) => {
     setFile(event.target.files[0]);
   };
 
-  // Handle form submission
   const handleSubmit = async (event) => {
     event.preventDefault();
 
@@ -21,12 +19,10 @@ const LoadExcel = () => {
       return;
     }
 
-    // Prepare the form data
     const formData = new FormData();
     formData.append("excel_file", file);
 
     try {
-      // Send the request to the backend
       const response = await fetch("http://127.0.0.1:8000/upload/", {
         method: "POST",
         body: formData,
@@ -37,9 +33,8 @@ const LoadExcel = () => {
         return;
       }
 
-      // Get HTML content from the response
       const html = await response.text();
-      setHtmlContent(html); // Store the HTML content in the state
+      setHtmlContent(html);
 
     } catch (error) {
       console.error("Error uploading file:", error);
@@ -49,52 +44,98 @@ const LoadExcel = () => {
 
   useEffect(() => {
     if (htmlRef.current) {
-      // Example: Apply Tailwind classes to the table and cells
       const table = htmlRef.current.querySelector("table");
       if (table) {
-        table.classList.add("table-auto", "w-full", "border-collapse");
+        // Add matrix theme classes to the table
+        table.classList.add(
+          "w-full",
+          "border-collapse",
+          "text-green-400",
+          "border-green-400"
+        );
 
         const ths = table.querySelectorAll("th");
         ths.forEach((th) => {
-          th.classList.add("border", "px-4", "py-2", "bg-gray-100", "text-left");
+          th.classList.add(
+            "border",
+            "border-green-400",
+            "px-4",
+            "py-2",
+            "bg-black",
+            "bg-opacity-50",
+            "text-left",
+            "text-green-400"
+          );
         });
 
         const tds = table.querySelectorAll("td");
         tds.forEach((td) => {
-          td.classList.add("border", "px-4", "py-2");
+          td.classList.add(
+            "border",
+            "border-green-400",
+            "px-4",
+            "py-2",
+            "text-green-400"
+          );
         });
       }
     }
   }, [htmlContent]);
 
   return (
-    <div className="h-screen bg-black text-green-400 font-mono flex flex-col items-center justify-center">
-      <h2 className="text-4xl font-bold mb-6 animate-pulse">Upload Excel File</h2>
-      <form onSubmit={handleSubmit} className="space-y-6">
-        <input
-          type="file"
-          name="excel_file"
-          accept=".xlsx, .xls"
-          onChange={handleFileChange}
-          className="bg-black border-2 border-green-400 px-4 py-2 text-green-400 rounded-md shadow-lg hover:bg-green-700 transition duration-200 ease-in-out"
-        />
-        <button 
-          type="submit" 
-          className="bg-black border-2 border-green-400 px-6 py-3 text-green-400 rounded-md hover:bg-green-700 transition duration-200 ease-in-out glitch"
-        >
-          Upload
-        </button>
-      </form>
+    <MatrixRainWrapper>
+      <div className="flex flex-col items-center justify-center min-h-screen p-4">
+        <div className="w-full max-w-4xl">
+          <h2 className="text-4xl font-bold mb-8 text-center text-green-400 animate-pulse">
+            Upload Excel File
+          </h2>
+          
+          <form onSubmit={handleSubmit} className="space-y-6 flex flex-col items-center">
+            <div className="relative group w-full max-w-md">
+              <input
+                type="file"
+                name="excel_file"
+                accept=".xlsx, .xls"
+                onChange={handleFileChange}
+                className="w-full px-4 py-3 bg-black bg-opacity-50 
+                         border-2 border-green-400 rounded-lg text-green-400
+                         file:mr-4 file:py-2 file:px-4 file:rounded-md
+                         file:border-0 file:bg-green-400 file:text-black
+                         hover:file:bg-green-500 file:cursor-pointer
+                         focus:outline-none focus:border-green-500
+                         transition-all duration-300"
+              />
+            </div>
+            
+            <button 
+              type="submit" 
+              className="px-8 py-3 bg-black bg-opacity-50 
+                       border-2 border-green-400 rounded-lg
+                       text-green-400 font-semibold
+                       hover:bg-green-400 hover:text-black
+                       transition-all duration-300
+                       focus:outline-none focus:ring-2 
+                       focus:ring-green-400 focus:ring-opacity-50
+                       disabled:opacity-50 disabled:cursor-not-allowed"
+              disabled={!file}
+            >
+              Upload
+            </button>
+          </form>
 
-      {/* Render the HTML content received from the backend */}
-      {htmlContent && (
-        <div
-          ref={htmlRef}
-          dangerouslySetInnerHTML={{ __html: htmlContent }}
-          className="mt-6 bg-black p-6 border-2 border-green-400 rounded-md shadow-xl"
-        />
-      )}
-    </div>
+          {htmlContent && (
+            <div
+              ref={htmlRef}
+              dangerouslySetInnerHTML={{ __html: htmlContent }}
+              className="mt-8 p-6 bg-black bg-opacity-50 
+                         border-2 border-green-400 rounded-lg 
+                         shadow-lg shadow-green-400/20
+                         overflow-x-auto"
+            />
+          )}
+        </div>
+      </div>
+    </MatrixRainWrapper>
   );
 };
 

@@ -1,161 +1,121 @@
-"use client";  // Add this line to specify this is a Client Component
+"use client"
+import React, { useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
-import { useEffect, useRef } from 'react';  // Import useRef
+import MatrixRainWrapper from '@/components/MatrixRain';
+
+const MatrixRain = () => {
+  const canvasRef = useRef(null);
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    const context = canvas.getContext('2d');
+
+    const resize = () => {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    };
+
+    window.addEventListener('resize', resize);
+    resize();
+
+    const chars = '01アイウエオカキクケコサシスセソタチツテトナニヌネノハヒフヘホマミムメモヤユヨラリルレロワ';
+    const fontSize = 14;
+    const columns = canvas.width / fontSize;
+    const drops = new Array(Math.floor(columns)).fill(1);
+
+    const draw = () => {
+      context.fillStyle = 'rgba(0, 0, 0, 0.05)';
+      context.fillRect(0, 0, canvas.width, canvas.height);
+
+      context.fillStyle = '#0F0';
+      context.font = `${fontSize}px monospace`;
+
+      for (let i = 0; i < drops.length; i++) {
+        const text = chars[Math.floor(Math.random() * chars.length)];
+        context.fillText(text, i * fontSize, drops[i] * fontSize);
+        
+        if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) {
+          drops[i] = 0;
+        }
+        drops[i]++;
+      }
+    };
+
+    const interval = setInterval(draw, 33);
+
+    return () => {
+      clearInterval(interval);
+      window.removeEventListener('resize', resize);
+    };
+  }, []);
+
+  return (
+    <canvas
+      ref={canvasRef}
+      style={{
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        width: '100%',
+        height: '100%',
+        zIndex: 1
+      }}
+    />
+  );
+};
 
 const NetworkSafetyPage = () => {
   const router = useRouter();
-  const binaryRainRef = useRef(null);  // Create a reference for the binary rain div
 
   const handleFindAttacks = () => {
-    // Navigate to the '/upload' page
     router.push('/upload');
   };
 
   const handleCheckSafety = () => {
-    // Handle Check Safety logic here (this can be updated to a different route if needed)
     router.push('/findAttack');
   };
 
-  useEffect(() => {
-    // Create falling binary numbers only after the component has mounted
-    if (binaryRainRef.current) {
-      createBinaryRain();
-    }
-  }, []);
-
-  // Function to generate falling binary numbers
-  const createBinaryRain = () => {
-    const binaryRainDiv = binaryRainRef.current; // Access the div using useRef
-    
-    const numDrops = 50; // Number of falling binary streams
-    const maxDuration = 5; // Max falling time
-    
-    for (let i = 0; i < numDrops; i++) {
-      const drop = document.createElement('div');
-      drop.className = 'binary-drop';
-      drop.style.position = 'absolute';
-      drop.style.left = `${Math.random() * 100}%`;
-      drop.style.fontSize = `${Math.random() * 20 + 20}px`;
-      drop.style.color = '#0f0';
-      drop.style.animation = `rain ${Math.random() * maxDuration + 3}s linear infinite`;
-
-      const binaryText = document.createElement('span');
-      binaryText.textContent = Math.random() > 0.5 ? '1' : '0';
-      drop.appendChild(binaryText);
-      
-      binaryRainDiv.appendChild(drop);
-    }
-  };
-
   return (
-    <div style={styles.container}>
-      <h1 style={styles.title}>Network Safety</h1>
-      <p style={styles.text}>Choose an option below:</p>
-      
-      <div style={styles.buttonContainer}>
-        <button style={styles.button} onClick={handleFindAttacks}>
-          Find Attacks
-        </button>
-        <button style={styles.button} onClick={handleCheckSafety}>
-          Check Safety of Network
-        </button>
+      <MatrixRainWrapper>
+        
+      <div className="relative z-20 flex flex-col items-center justify-center min-h-screen px-4">
+        <h1 className="text-5xl font-bold mb-8 tracking-wider uppercase text-green-500 animate-pulse">
+          Network Safety
+        </h1>
+        
+        <p className="text-xl mb-12 text-green-400">
+          Choose an option below:
+        </p>
+        
+        <div className="space-y-4 w-full max-w-md">
+          <button
+            onClick={handleCheckSafety}
+            className="w-full px-6 py-3 text-lg text-green-500 border-2 border-green-500 
+                     bg-black bg-opacity-75
+                     hover:bg-green-500 hover:bg-opacity-20 
+                     transition-all duration-300 ease-in-out
+                     focus:outline-none focus:ring-2 focus:ring-green-500 
+                     focus:ring-opacity-50 rounded"
+          >
+            Check Safety of Network
+          </button>
+          
+          <button
+            onClick={handleFindAttacks}
+            className="w-full px-6 py-3 text-lg text-green-500 border-2 border-green-500 
+                     bg-black bg-opacity-75
+                     hover:bg-green-500 hover:bg-opacity-20 
+                     transition-all duration-300 ease-in-out
+                     focus:outline-none focus:ring-2 focus:ring-green-500 
+                     focus:ring-opacity-50 rounded"
+          >
+            Find Attacks
+          </button>
+        </div>
       </div>
       
-      {/* Falling 0s and 1s */}
-      <div ref={binaryRainRef} style={styles.binaryRain}></div> {/* Attach the ref here */}
-    </div>
+      </MatrixRainWrapper>
   );
 };
-
-// Basic inline styles (updated for "hacking theme" with falling 0s and 1s)
-const styles = {
-  container: {
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'center',
-    justifyContent: 'center',
-    height: '100vh',
-    backgroundColor: '#000', // Dark background for a "hacking" feel
-    color: '#0f0', // Neon green text
-    fontFamily: "'Courier New', monospace", // Monospace font for that hacker look
-    textAlign: 'center',
-    overflow: 'hidden', // Hide overflow for falling animation
-    position: 'relative', // To position the binary rain
-  },
-  title: {
-    fontSize: '3rem',
-    letterSpacing: '5px',
-    textTransform: 'uppercase',
-    color: '#0f0', // Neon green color for title
-    animation: 'glitch 1s infinite alternate', // Glitch effect for title
-  },
-  text: {
-    fontSize: '1.5rem',
-    color: '#0f0',
-    marginBottom: '30px',
-  },
-  buttonContainer: {
-    marginTop: '20px',
-  },
-  button: {
-    margin: '10px',
-    padding: '15px 30px',
-    fontSize: '18px',
-    cursor: 'pointer',
-    border: '2px solid #0f0',
-    borderRadius: '5px',
-    backgroundColor: 'transparent', // Transparent background for buttons
-    color: '#0f0',
-    fontWeight: 'bold',
-    transition: 'transform 0.3s ease, box-shadow 0.3s ease',
-  },
-  buttonHover: {
-    transform: 'scale(1.1)',
-    boxShadow: '0 0 10px #0f0, 0 0 20px #0f0', // Neon glow effect on hover
-  },
-  binaryRain: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    pointerEvents: 'none',
-    overflow: 'hidden',
-    zIndex: -1,
-  }
-};
-
-// Glitch animation keyframes (for title)
-const glitchStyles = `
-  @keyframes glitch {
-    0% {
-      text-shadow: 2px 0 red, -2px 0 blue;
-    }
-    50% {
-      text-shadow: -2px 0 red, 2px 0 blue;
-    }
-    100% {
-      text-shadow: 2px 0 red, -2px 0 blue;
-    }
-  }
-`;
-
-// Binary rain animation keyframes
-const binaryRainStyles = `
-  @keyframes rain {
-    0% {
-      transform: translateY(-100%);
-    }
-    100% {
-      transform: translateY(100%);
-    }
-  }
-`;
-
-const head = document.head || document.getElementsByTagName('head')[0];
-const style = document.createElement('style');
-style.type = 'text/css';
-style.appendChild(document.createTextNode(glitchStyles + binaryRainStyles));
-head.appendChild(style);
 
 export default NetworkSafetyPage;
