@@ -32,18 +32,18 @@ def preprocess_data(data):
     
     df1 = df.apply(lambda x:np.log(x+1))
     
-    scaled_df = scaler.fit_transform(df1) 
+    scaled_df = scaler.transform(df1) 
     
     return pd.DataFrame(scaled_df, columns=df.columns)
     
 
 def label_processing(data):
     model_dir = os.path.join(os.path.dirname(__file__),'models')
-    label1 = joblib.load(os.path.join(model_dir,'label1.joblib'))
+    label1 = joblib.load(os.path.join(model_dir,'label13.joblib'))
     proto_encoder = joblib.load(os.path.join(model_dir, 'proto_encoder.joblib'))
     service_encoder = joblib.load(os.path.join(model_dir, 'service_encoder.joblib'))
     state_encoder = joblib.load(os.path.join(model_dir, 'state_encoder.joblib'))
-    labelscaler = joblib.load(os.path.join(model_dir,'scaler.joblib'))
+    labelscaler = joblib.load(os.path.join(model_dir,'labelling.joblib'))
 
     df = pd.DataFrame(data)
     
@@ -58,11 +58,12 @@ def label_processing(data):
     if not pd.to_numeric(df['service'], errors='coerce').notna().all():
         df['service'] = service_encoder.transform(df['service'])
     # print(df)
-    
+    df1 = df.apply(lambda x:np.log(x+1))
 
-# Now you can apply .iloc to remove the last row
+    # Now you can apply .iloc to remove the last row
+    scaled_df = label1.transform(df1)
+    print(scaled_df)
+    scaled = labelscaler.transform(scaled_df)
     
-    scaled_df = labelscaler.transform(df)
     
-    
-    return pd.DataFrame(scaled_df,columns=df.columns)
+    return pd.DataFrame(scaled,columns=df.columns)

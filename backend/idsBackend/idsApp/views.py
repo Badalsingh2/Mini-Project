@@ -102,7 +102,7 @@ def label_predictor(request):
         # Process the data in df as needed, e.g., extract specific columns, rows, etc.
         # Example: display the first few rows
         model_dir = os.path.join(os.path.dirname(__file__),'models')
-        model2 = joblib.load(os.path.join(model_dir,'labelmodel.joblib'))
+        model2 = joblib.load(os.path.join(model_dir,'logistic.joblib'))
 
         data = label_processing(df)
         print(data)
